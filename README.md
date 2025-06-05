@@ -190,18 +190,28 @@ If you use this software in your research, please cite:
 This software integrates several computational engines with modern GUI interfaces:
 
 - **EDAC Engine**: Originally developed by **F. Javier Garcia de Abajo** (Copyright 1997-2000)
-- **Multiplet Theory Code**: Originally developed by **Professor Peter Kruger**, University of Chiba
+- **Multiplet Theory, Cluster Generation & Visualization Tools**: Originally developed by **Professor Peter Krüger**, University of Chiba
+  - Multiplet theory calculations
+  - Cluster structure generation tools (cluster2edac, edacclusterfile utilities)
+  - Visualization and analysis tools (intens_stereo_*, rpededac, etc.)
 - **GUI Interface & Linux Compatibility**: Developed by **TeslaYet**
-- **Cross-platform Integration**: Community contributions
 
 ### Original Publications
 Please also cite the original theoretical work when using the computational engines:
 - For EDAC calculations: Cite the relevant papers by F. Javier Garcia de Abajo
-- For Multiplet theory: Cite the relevant papers by Professor Peter Kruger
+- For Multiplet theory and associated tools: Cite the relevant papers by Professor Peter Krüger
 
 ## 📜 License
 
-This project is licensed under the [LICENSE](LICENSE) file in the repository.
+This project uses a multi-component licensing approach:
+
+- **GUI Interface & Linux Compatibility**: MIT License (Copyright 2024 TeslaYet)
+- **EDAC Engine**: Original work by F. Javier Garcia de Abajo (1997-2000)
+- **Multiplet Theory, Cluster Generation & Visualization Tools**: Original work by Professor Peter Krüger, University of Chiba
+
+See the [LICENSE](LICENSE) file for complete details and attribution requirements.
+
+**For Academic Use**: Please cite both this integrated suite and the original computational engines in your research publications.
 
 ## 🆘 Support
 

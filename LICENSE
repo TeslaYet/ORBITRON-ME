@@ -1,0 +1,70 @@
+MIT License
+
+Copyright (c) 2024 TeslaYet
+
+ORBITRON-ME: Orbitron-Multiplet-Edac Suite
+===========================================
+
+This software integrates multiple computational engines with modern GUI interfaces.
+
+COMPONENT ATTRIBUTIONS:
+-----------------------
+
+1. GUI Interface & Linux Compatibility Implementation
+   Copyright (c) 2024 TeslaYet
+   Licensed under MIT License (see below)
+
+2. EDAC Computational Engine (Edac 2/ directory)
+   Original work by F. Javier Garcia de Abajo
+   Copyright (c) 1997-2000 F. Javier Garcia de Abajo
+   
+3. Multiplet Theory Computational Engine, Cluster Generation Tools, and Visualization Tools
+   Original work by Professor Peter Krüger, University of Chiba
+   This includes:
+   - Multiplet theory calculations (Multiplet2/RPES/src/ directory)
+   - Cluster structure generation tools (cluster2edac.c, edacclusterfile/ directory)
+   - Visualization and analysis tools (intens_stereo_*.c, rpededac.c, etc.)
+
+ACADEMIC USE:
+-------------
+If you use this software in academic research, please cite:
+
+- For the integrated suite: TeslaYet (2024). ORBITRON-ME. https://github.com/TeslaYet/ORBITRON-ME
+- For EDAC calculations: The relevant publications by F. Javier Garcia de Abajo
+- For Multiplet theory and associated tools: The relevant publications by Professor Peter Krüger
+
+MIT LICENSE FOR GUI INTERFACE & INTEGRATION:
+============================================
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+DISCLAIMER:
+===========
+
+The original computational engines and tools (EDAC by Garcia de Abajo, and 
+Multiplet/cluster/visualization tools by Professor Krüger) are the intellectual
+property of their respective authors. This license applies specifically to 
+the GUI interface, integration work, Linux compatibility improvements, and 
+documentation created by TeslaYet.
+
+Users should respect the original authors' work and cite appropriate publications
+when using the computational engines for academic research.
+
+For questions about licensing of the original computational engines, please
+contact the original authors or institutions. 
