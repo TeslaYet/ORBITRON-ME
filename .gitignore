@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*_env/
+edac_env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Compiled object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Compiled executables (users should compile these themselves)
+multiplet
+cluster2edac
+edac.exe
+edac
+rpededac
+rpededac.exe
+intens_stereo_hot
+intens_stereo_hot.exe
+intens_stereo_rb
+intens_stereo_rb.exe
+
+# Build artifacts
+build_artifacts/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+ms_archive/
+
+# Output files
+*.ms
+*.png
+*.dat
+*.tmp
+logfile
+ordered.dat
+
+# Temporary files
+temp_*
+rpededac_input.txt 
