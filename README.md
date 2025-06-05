@@ -62,8 +62,8 @@ sudo apt install build-essential python3 python3-pip python3-venv liblapack-dev 
 
 2. **Clone and setup:**
 ```bash
-git clone https://github.com/yourusername/Orbitron-Multiplet-Edac.git
-cd Orbitron-Multiplet-Edac
+git clone https://github.com/TeslaYet/ORBITRON-ME.git
+cd ORBITRON-ME
 python3 -m venv venv
 source venv/bin/activate
 pip install PyQt6 numpy scipy matplotlib
@@ -145,7 +145,7 @@ For detailed troubleshooting instructions, see [LINUX_COMPLETE_SETUP_GUIDE.md](L
 ## 📄 File Structure
 
 ```
-Orbitron-Multiplet-Edac/
+ORBITRON-ME/
 ├── Multiplet2/RPES/          # Multiplet calculation suite
 │   ├── multiplet_gui.py      # Main Multiplet GUI
 │   ├── src/                  # Source code for multiplet
@@ -177,12 +177,27 @@ If you use this software in your research, please cite:
 
 ```bibtex
 @software{orbitron_multiplet_edac,
-  title={Orbitron-Multiplet-Edac: Electron Diffraction Angular Correlation Suite},
-  author={[Your Name]},
+  title={ORBITRON-ME: Orbitron-Multiplet-Edac Suite},
+  author={TeslaYet},
+  note={GUI interface and Linux compatibility implementation},
   year={2024},
-  url={https://github.com/yourusername/Orbitron-Multiplet-Edac}
+  url={https://github.com/TeslaYet/ORBITRON-ME}
 }
 ```
+
+## 🏆 Credits
+
+This software integrates several computational engines with modern GUI interfaces:
+
+- **EDAC Engine**: Originally developed by **F. Javier Garcia de Abajo** (Copyright 1997-2000)
+- **Multiplet Theory Code**: Originally developed by **Professor Peter Kruger**, University of Chiba
+- **GUI Interface & Linux Compatibility**: Developed by **TeslaYet**
+- **Cross-platform Integration**: Community contributions
+
+### Original Publications
+Please also cite the original theoretical work when using the computational engines:
+- For EDAC calculations: Cite the relevant papers by F. Javier Garcia de Abajo
+- For Multiplet theory: Cite the relevant papers by Professor Peter Kruger
 
 ## 📜 License
 
