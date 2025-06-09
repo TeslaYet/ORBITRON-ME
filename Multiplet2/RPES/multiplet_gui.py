@@ -1434,6 +1434,13 @@ class MultipletGUI(QMainWindow):
         
         viz_layout.addWidget(self.generate_btn)
         
+        # Add XPM view button
+        self.view_xpm_btn = QPushButton("View XPM File")
+        self.view_xpm_btn.clicked.connect(self.view_xpm_file)
+        self.view_xpm_btn.setEnabled(False)
+        
+        viz_layout.addWidget(self.view_xpm_btn)
+        
         viz_group.setLayout(viz_layout)
         layout.addWidget(viz_group)
         
@@ -1654,9 +1661,18 @@ class MultipletGUI(QMainWindow):
             else:
                 self.viz_status_label.setText(f"Status: Visualization completed but no image found. Files in dir: {os.listdir(self.viz_dir_path.text())[:10]}")
                 QMessageBox.warning(self, "Warning", "Visualization generated but no output image found.")
+            
+            # Check for temp.xpm file and enable the view button
+            xpm_path = os.path.join(self.viz_dir_path.text(), "temp.xpm")
+            if os.path.exists(xpm_path):
+                self.view_xpm_btn.setEnabled(True)
+                self.viz_status_label.setText(f"Status: PNG and XPM files available. {self.viz_status_label.text()}")
+            else:
+                self.view_xpm_btn.setEnabled(False)
         else:
             self.viz_status_label.setText(f"Status: Error generating visualization: {output}")
             QMessageBox.critical(self, "Error", f"Error generating visualization:\n{output}")
+            self.view_xpm_btn.setEnabled(False)
         
         self.generate_btn.setEnabled(True)
     
@@ -1671,6 +1687,20 @@ class MultipletGUI(QMainWindow):
             self.image_label.setText(f"Cannot load image: {image_path}")
             self.viz_status_label.setText(f"Status: Failed to load image: {image_path}")
 
+    def view_xpm_file(self):
+        """View the temp.xpm file if it exists"""
+        if not self.viz_dir_path.text() or not os.path.exists(self.viz_dir_path.text()):
+            QMessageBox.warning(self, "Error", "No working directory selected")
+            return
+            
+        xpm_path = os.path.join(self.viz_dir_path.text(), "temp.xpm")
+        if os.path.exists(xpm_path):
+            self.display_image(xpm_path)
+            self.viz_status_label.setText(f"Status: Displaying XPM file: {xpm_path}")
+        else:
+            QMessageBox.information(self, "No XPM File", "No temp.xpm file found in the working directory")
+            self.viz_status_label.setText("Status: No temp.xpm file found")
+    
     def setup_cluster_tab(self):
         """Setup the cluster creator tab for generating crystal cluster structures"""
         layout = QVBoxLayout()
