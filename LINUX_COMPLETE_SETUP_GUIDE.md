@@ -62,19 +62,19 @@ sudo dnf install -y qt5-qtbase-devel
 # Install debugging tools
 sudo dnf install -y gdb valgrind
 
-# Install Git
+# Install Git if not already installed
 sudo dnf install -y git
 ```
 
 ## Python Environment Setup
 
-1. **Clone the repository:**
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/Orbitron-Multiplet-Edac.git
-cd Orbitron-Multiplet-Edac
+git clone https://github.com/TeslaYet/ORBITRON-ME.git
+cd ORBITRON-ME
 ```
 
-2. **Create and activate a virtual environment:**
+### 2. Create and Activate Virtual Environment
 ```bash
 # Create virtual environment
 python3 -m venv venv
@@ -82,21 +82,74 @@ python3 -m venv venv
 # Activate virtual environment
 source venv/bin/activate
 
-# Verify activation (should show the venv path)
-which python
-```
-
-3. **Install Python dependencies:**
-```bash
-# Upgrade pip first
+# Upgrade pip
 pip install --upgrade pip
-
-# Install PyQt6 and other required packages
-pip install PyQt6 numpy scipy matplotlib
-
-# Verify installation
-python -c "import PyQt6.QtWidgets; print('PyQt6 installed successfully')"
 ```
+
+### 3. Install Python Dependencies
+```bash
+# Install required Python packages
+pip install PyQt6 numpy scipy matplotlib
+```
+
+## Cowan Atomic Parameters Setup (Optional but Recommended)
+
+The Cowan integration allows automatic calculation of Slater-Condon parameters, eliminating the need for manual parameter lookup.
+
+### 1. Install atomic-parameters Tool
+```bash
+# Clone the atomic-parameters repository
+git clone https://github.com/mretegan/atomic-parameters.git
+
+# Navigate to the directory
+cd atomic-parameters
+
+# Install dependencies in your virtual environment
+pip install -r requirements.txt
+
+# Test the installation
+python3 parameters.py --element "Fe" --configuration "1s1,3d5"
+```
+
+You should see output like:
+```
+INFO: Fe 1s1,3d5 
+INFO: E = -27384.1640 eV
+INFO: F2(3d,3d) = 13.7105 eV
+INFO: F4(3d,3d) = 8.6178 eV
+INFO: ζ(3d) = 0.0837 eV
+INFO: G2(1s,3d) = 0.0733 eV
+```
+
+### 2. Verify Cowan Integration in GUI
+```bash
+# Return to ORBITRON-ME directory
+cd ../ORBITRON-ME
+
+# Test the integration
+python3 test_cowan_integration.py
+```
+
+### 3. Common Cowan Issues and Solutions
+
+#### Missing Dependencies
+If you get `ModuleNotFoundError: No module named 'xraydb'`:
+```bash
+cd atomic-parameters
+pip install -r requirements.txt
+```
+
+#### Path Issues
+The GUI will auto-detect the atomic-parameters directory if it's in:
+- `/home/tesla/atomic-parameters`
+- `~/atomic-parameters` 
+- `../atomic-parameters` (relative to GUI)
+
+#### Calculation Errors
+Common configuration formats:
+- **Ground state**: `3d5`, `3d8`, `4f7`
+- **L₃-edge**: `2p5,3d5`, `2p5,3d8`
+- **K-edge**: `1s1,3d5`, `1s1,3d8`
 
 ## Compilation Steps
 

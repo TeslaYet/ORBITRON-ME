@@ -43,6 +43,46 @@ This document summarizes all the changes made to ensure full Linux compatibility
 - `Multiplet2/RPES/multiplet_gui.py` - Added icon loading
 - `Edac 2/edac_gui.py` - Added icon loading
 
+### 4. Cowan Atomic Parameters Integration ✅ NEW FEATURE
+**Enhancement:** Integrated Cowan's atomic structure codes for automated Slater-Condon parameter calculation.
+
+**Problem Solved:** Manual lookup and entry of Slater-Condon parameters (F₂, F₄, G₁, G₃, ζ) was time-consuming, error-prone, and required extensive literature knowledge.
+
+**Solution:** 
+- Integrated the `atomic-parameters` tool (https://github.com/mretegan/atomic-parameters.git)
+- Added prominent Cowan calculator section in Multiplet GUI "Create Input" tab
+- Implemented automatic parameter parsing and GUI field population
+- Added validation for element symbols and electronic configurations
+- Included examples and tooltips for common transition metal configurations
+
+**Features Added:**
+- **Auto-calculation**: F₂(3d,3d), F₄(3d,3d), G₁(2p,3d), G₃(2p,3d), ζ(3d) parameters
+- **Configuration support**: Ground state (3d⁵), L₃-edge (2p⁵,3d⁵), K-edge (1s¹,3d⁵)
+- **Element validation**: Supports all transition metals (Fe, Ni, Co, Mn, Cr, etc.)
+- **Error handling**: Comprehensive validation and user-friendly error messages
+- **Examples system**: Built-in examples for common XPS/RIXS configurations
+
+**Files Modified:**
+- `Multiplet2/RPES/multiplet_gui.py` - Added Cowan integration UI and functionality
+- `README.md` - Updated with Cowan setup instructions
+- `COWAN_INTEGRATION_GUIDE.md` - Created comprehensive user guide
+- `test_cowan_integration.py` - Created integration test suite
+- `LINUX_COMPLETE_SETUP_GUIDE.md` - Added Cowan setup section
+
+**Usage:**
+1. Install atomic-parameters: `git clone https://github.com/mretegan/atomic-parameters.git`
+2. Install dependencies: `pip install -r requirements.txt`
+3. Open Multiplet GUI → "Create Input" tab → scroll to top
+4. Enter element (Fe) and configuration (1s1,3d5)
+5. Click "Calculate Parameters" → "Populate Fields"
+
+**Benefits:**
+- ⚡ **Speed**: Eliminates manual parameter lookup time
+- 🎯 **Accuracy**: Uses rigorous Cowan atomic structure calculations  
+- 🔄 **Consistency**: Ensures internally consistent parameter sets
+- 📚 **Knowledge**: No need for extensive Slater-Condon parameter literature
+- 🔬 **Research**: Enables focus on physics rather than parameter hunting
+
 ## 📚 Documentation Improvements
 
 ### 1. Comprehensive Linux Setup Guide ✅ NEW

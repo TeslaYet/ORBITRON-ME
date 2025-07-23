@@ -32,6 +32,7 @@ Follow the instructions in [compile_macos.sh](compile_macos.sh) for macOS compil
 ## 🔧 Features
 
 - **Multiplet Theory Calculations**: Full multiplet calculations with crystal field effects
+- **Cowan Atomic Parameters**: Automated calculation of Slater-Condon parameters using Cowan's atomic structure codes
 - **EDAC Simulations**: Electron diffraction angular correlation analysis
 - **Cluster Structure Generator**: Create crystal clusters for calculations
 - **Visualization Tools**: Generate publication-quality diffraction patterns
@@ -69,7 +70,16 @@ source venv/bin/activate
 pip install PyQt6 numpy scipy matplotlib
 ```
 
-3. **Compile components:**
+3. **Setup Cowan Atomic Parameters (Optional but recommended):**
+```bash
+# Clone the atomic-parameters repository
+git clone https://github.com/mretegan/atomic-parameters.git
+cd atomic-parameters
+pip install -r requirements.txt
+cd ..
+```
+
+4. **Compile components:**
 ```bash
 # Compile Multiplet
 cd Multiplet2/RPES/src && ./compile && cp multiplet ../ && cd ../../..
@@ -86,12 +96,12 @@ gcc -o intens_stereo_rb intens_stereo_rb.c -lm
 chmod +x edac.exe rpededac intens_stereo_hot intens_stereo_rb
 ```
 
-4. **Test installation:**
+5. **Test installation:**
 ```bash
 ./test_linux_installation.sh
 ```
 
-5. **Run applications:**
+6. **Run applications:**
 ```bash
 source venv/bin/activate
 cd Multiplet2/RPES && python3 multiplet_gui.py  # Multiplet GUI
@@ -103,6 +113,7 @@ For detailed instructions and troubleshooting, see [LINUX_COMPLETE_SETUP_GUIDE.m
 ## 📱 Applications
 
 ### Multiplet GUI (`Multiplet2/RPES/multiplet_gui.py`)
+- **Cowan Atomic Parameters**: Automatically calculate Slater-Condon parameters using Cowan's atomic structure codes
 - Create multiplet calculation input files
 - Run multiplet calculations
 - Convert output for EDAC analysis
@@ -115,6 +126,31 @@ For detailed instructions and troubleshooting, see [LINUX_COMPLETE_SETUP_GUIDE.m
 - Generate diffraction pattern visualizations
 - Support for multiple emitter configurations
 
+## 🧮 Using Cowan Atomic Parameters
+
+The Multiplet GUI now includes integrated support for automatically calculating atomic parameters using Cowan's programs:
+
+### Setup
+1. Clone the atomic-parameters repository: `git clone https://github.com/mretegan/atomic-parameters.git`
+2. Install dependencies: `cd atomic-parameters && pip install -r requirements.txt`
+3. The GUI will auto-detect the atomic-parameters directory if it's in your home folder
+
+### Usage
+1. Open the Multiplet GUI
+2. In the "Create Input" tab, find the "Cowan Atomic Parameters Calculator" section
+3. Enter element symbol (e.g., "Fe", "Ni", "Co") and electronic configuration (e.g., "1s1,3d5", "3d5")
+4. Click "Calculate Parameters" to run Cowan's atomic structure calculation
+5. Click "Populate Fields" to automatically fill the Slater-Condon parameters
+6. The calculated parameters will be applied to Ground State, Final State, and Intermediate State sections
+
+### Supported Parameters
+- F₂(3d,3d), F₄(3d,3d) - d-d Coulomb integrals
+- F₂(2p,3d) - core-valence Coulomb integrals  
+- G₁(2p,3d), G₃(2p,3d) - core-valence exchange integrals
+- ζ(3d) - spin-orbit coupling parameters
+
+This integration eliminates the need to manually look up and enter these parameters, ensuring accuracy and saving time.
+
 ## 🔧 Key Components
 
 ### Computational Engines
@@ -122,6 +158,7 @@ For detailed instructions and troubleshooting, see [LINUX_COMPLETE_SETUP_GUIDE.m
 - **edac.exe**: Main EDAC calculation program
 - **rpededac**: RPES-EDAC interface program
 - **cluster2edac**: Crystal cluster structure generator
+- **Cowan atomic parameters**: Automated Slater-Condon parameter calculation
 
 ### Visualization Tools
 - **intens_stereo_hot**: Hot colormap diffraction patterns
@@ -147,7 +184,7 @@ For detailed troubleshooting instructions, see [LINUX_COMPLETE_SETUP_GUIDE.md](L
 ```
 ORBITRON-ME/
 ├── Multiplet2/RPES/          # Multiplet calculation suite
-│   ├── multiplet_gui.py      # Main Multiplet GUI
+│   ├── multiplet_gui.py      # Main Multiplet GUI (with Cowan integration)
 │   ├── src/                  # Source code for multiplet
 │   └── convert_rpesalms.py   # Output conversion tool
 ├── Edac 2/                   # EDAC calculation suite
@@ -155,6 +192,9 @@ ORBITRON-ME/
 │   ├── edac.cpp             # EDAC calculation engine
 │   ├── rpededac.c           # RPES-EDAC interface
 │   └── intens_stereo_*.c    # Visualization tools
+├── atomic-parameters/        # Cowan atomic parameters (optional)
+│   ├── parameters.py        # Main calculation script
+│   └── cowan/               # Cowan's atomic structure codes
 ├── cluster2edac.c           # Cluster generator
 ├── icon.png                 # Custom GUI icon
 ├── venv/                    # Python virtual environment

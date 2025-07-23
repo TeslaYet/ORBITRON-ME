@@ -37,6 +37,46 @@ class WorkerThread(QThread):
         except subprocess.CalledProcessError as e:
             self.finished.emit(False, e.output.decode())
 
+# Thread for running Cowan atomic parameters calculation
+class CowanThread(QThread):
+    finished = pyqtSignal(bool, str, dict)
+    
+    def __init__(self, element, configuration, atomic_params_path):
+        super().__init__()
+        self.element = element
+        self.configuration = configuration
+        self.atomic_params_path = atomic_params_path
+        
+    def run(self):
+        try:
+            # Change to atomic-parameters directory and run the calculation
+            cmd = f'cd "{self.atomic_params_path}" && python3 parameters.py --element "{self.element}" --configuration "{self.configuration}"'
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=True)
+            
+            # Parse the output to extract parameters
+            parameters = {}
+            output_lines = result.stderr.split('\n')  # Parameters are in stderr with INFO level
+            
+            for line in output_lines:
+                if 'INFO:' in line and '=' in line and 'eV' in line:
+                    # Extract parameter name and value
+                    parts = line.split('INFO: ')[1].split(' = ')
+                    if len(parts) == 2:
+                        param_name = parts[0].strip()
+                        param_value = parts[1].replace(' eV', '').strip()
+                        try:
+                            parameters[param_name] = float(param_value)
+                        except ValueError:
+                            pass
+            
+            self.finished.emit(True, result.stderr, parameters)
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"Error running Cowan calculation:\nstdout: {e.stdout}\nstderr: {e.stderr}"
+            self.finished.emit(False, error_msg, {})
+        except Exception as e:
+            self.finished.emit(False, f"Unexpected error: {str(e)}", {})
+
 class MultipletGUI(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -259,6 +299,112 @@ class MultipletGUI(QMainWindow):
         scroll_area.setWidgetResizable(True)
         scroll_content = QWidget()
         form_layout = QVBoxLayout(scroll_content)
+        
+        # === NEW: Cowan Atomic Parameters Section ===
+        cowan_box = QGroupBox("🧮 Cowan Atomic Parameters Calculator")
+        cowan_box.setStyleSheet("QGroupBox { font-weight: bold; font-size: 14px; color: #2E8B57; border: 2px solid #2E8B57; border-radius: 5px; margin: 5px; padding: 10px; }")
+        cowan_layout = QVBoxLayout()
+        
+        # Add description
+        desc_label = QLabel("Automatically calculate Slater-Condon parameters (Fk, Gk, ζ) using Cowan's atomic structure codes.\n"
+                           "This eliminates manual parameter lookup and ensures accuracy.")
+        desc_label.setStyleSheet("font-style: italic; color: #555; margin-bottom: 10px;")
+        desc_label.setWordWrap(True)
+        cowan_layout.addWidget(desc_label)
+        
+        # Element and configuration input
+        cowan_input_layout = QGridLayout()
+        
+        # Element input with examples
+        cowan_input_layout.addWidget(QLabel("Element:"), 0, 0)
+        self.cowan_element = QLineEdit("Fe")
+        self.cowan_element.setMaximumWidth(80)
+        self.cowan_element.setToolTip("Chemical symbol (e.g., Fe, Ni, Co, Mn, Cr)")
+        cowan_input_layout.addWidget(self.cowan_element, 0, 1)
+        
+        element_examples = QLabel("Examples: Fe, Ni, Co, Mn")
+        element_examples.setStyleSheet("font-size: 10px; color: #666;")
+        cowan_input_layout.addWidget(element_examples, 0, 2)
+        
+        # Configuration input with examples
+        cowan_input_layout.addWidget(QLabel("Configuration:"), 1, 0)
+        self.cowan_configuration = QLineEdit("1s1,3d5")
+        self.cowan_configuration.setMaximumWidth(150)
+        self.cowan_configuration.setToolTip("Electronic configuration\n"
+                                           "Core hole configs: 1s1,3d5 (K-edge), 2p5,3d5 (L-edge)\n"
+                                           "Ground state: 3d5, 3d6, 3d8, etc.")
+        cowan_input_layout.addWidget(self.cowan_configuration, 1, 1)
+        
+        config_examples = QLabel("L₃-edge: 2p5,3d5  |  K-edge: 1s1,3d5  |  Ground: 3d5")
+        config_examples.setStyleSheet("font-size: 10px; color: #666;")
+        cowan_input_layout.addWidget(config_examples, 1, 2)
+        
+        # Atomic parameters path
+        cowan_input_layout.addWidget(QLabel("Atomic-params path:"), 2, 0)
+        self.atomic_params_path = QLineEdit()
+        self.atomic_params_path.setToolTip("Path to atomic-parameters directory containing parameters.py")
+        
+        # Try to auto-detect the atomic-parameters directory
+        possible_paths = [
+            "/home/tesla/atomic-parameters",
+            os.path.expanduser("~/atomic-parameters"),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "atomic-parameters")
+        ]
+        for path in possible_paths:
+            if os.path.exists(path) and os.path.exists(os.path.join(path, "parameters.py")):
+                self.atomic_params_path.setText(path)
+                break
+        
+        cowan_input_layout.addWidget(self.atomic_params_path, 2, 1)
+        
+        browse_params_btn = QPushButton("Browse")
+        browse_params_btn.clicked.connect(self.browse_atomic_params_path)
+        cowan_input_layout.addWidget(browse_params_btn, 2, 2)
+        
+        cowan_layout.addLayout(cowan_input_layout)
+        
+        # Calculate and populate buttons
+        cowan_button_layout = QHBoxLayout()
+        self.calculate_cowan_btn = QPushButton("🔬 Calculate Parameters")
+        self.calculate_cowan_btn.clicked.connect(self.calculate_cowan_parameters)
+        self.calculate_cowan_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 8px; border-radius: 4px; }")
+        cowan_button_layout.addWidget(self.calculate_cowan_btn)
+        
+        self.populate_params_btn = QPushButton("📝 Populate Fields")
+        self.populate_params_btn.clicked.connect(self.populate_slater_condon_parameters)
+        self.populate_params_btn.setEnabled(False)
+        self.populate_params_btn.setStyleSheet("QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 8px; border-radius: 4px; }")
+        cowan_button_layout.addWidget(self.populate_params_btn)
+        
+        # Add quick examples button
+        self.examples_cowan_btn = QPushButton("📋 Examples")
+        self.examples_cowan_btn.clicked.connect(self.show_cowan_examples)
+        self.examples_cowan_btn.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 8px; border-radius: 4px; }")
+        cowan_button_layout.addWidget(self.examples_cowan_btn)
+        
+        cowan_button_layout.addStretch()
+        cowan_layout.addLayout(cowan_button_layout)
+        
+        # Results display
+        self.cowan_results = QTextEdit()
+        self.cowan_results.setMaximumHeight(120)
+        self.cowan_results.setReadOnly(True)
+        self.cowan_results.setText("💡 Click 'Calculate Parameters' to run Cowan's atomic structure calculation...\n\n"
+                                  "This will calculate Slater-Condon parameters:\n"
+                                  "• F₂(3d,3d), F₄(3d,3d) - Coulomb integrals\n"
+                                  "• G₁(2p,3d), G₃(2p,3d) - Exchange integrals\n" 
+                                  "• ζ(3d) - Spin-orbit coupling parameters")
+        self.cowan_results.setStyleSheet("QTextEdit { background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; }")
+        cowan_layout.addWidget(QLabel("Calculation Results:"))
+        cowan_layout.addWidget(self.cowan_results)
+        
+        cowan_box.setLayout(cowan_layout)
+        form_layout.addWidget(cowan_box)
+        
+        # Store calculated parameters for later use
+        self.calculated_parameters = {}
+        
+        # === END: Cowan Section ===
         
         # Energy parameters group
         energy_box = QGroupBox("Energy Parameters")
@@ -2208,18 +2354,348 @@ class MultipletGUI(QMainWindow):
             QMessageBox.warning(self, "Error", f"Could not open viewer: {e}")
     
     def use_in_edac(self):
-        """Set the created cluster file for use in the EDAC tab"""
-        if not self.created_clus_file or not os.path.exists(self.created_clus_file):
-            QMessageBox.warning(self, "Error", "No cluster CLUS file available to use in EDAC")
+        """Use the current cluster in EDAC tab"""
+        if hasattr(self, 'last_cluster_file') and os.path.exists(self.last_cluster_file):
+            # Switch to EDAC tab and populate cluster file
+            self.tabs.setCurrentIndex(3)  # EDAC tab index
+            self.edac_cluster_path.setText(self.last_cluster_file)
+            self.check_edac_run_button()
+            
+            # Show confirmation
+            QMessageBox.information(self, "Success", 
+                f"Cluster file set in EDAC tab:\n{os.path.basename(self.last_cluster_file)}")
+        else:
+            QMessageBox.warning(self, "Error", "No cluster file available. Please create a cluster first.")
+    
+    # === NEW: Cowan Atomic Parameters Methods ===
+    
+    def show_cowan_examples(self):
+        """Show examples of common element/configuration combinations"""
+        examples_text = """
+🔬 Common Cowan Configuration Examples
+
+📋 TRANSITION METAL L₃-EDGE (most common for XPS/RIXS):
+   • Fe³⁺ L₃: Element=Fe, Config=2p5,3d5
+   • Ni²⁺ L₃: Element=Ni, Config=2p5,3d8  
+   • Co²⁺ L₃: Element=Co, Config=2p5,3d7
+   • Mn²⁺ L₃: Element=Mn, Config=2p5,3d5
+   • Cr³⁺ L₃: Element=Cr, Config=2p5,3d3
+
+📋 TRANSITION METAL K-EDGE (for XAS):
+   • Fe³⁺ K: Element=Fe, Config=1s1,3d5
+   • Ni²⁺ K: Element=Ni, Config=1s1,3d8
+   • Co²⁺ K: Element=Co, Config=1s1,3d7
+
+📋 GROUND STATE (no core hole):
+   • Fe³⁺: Element=Fe, Config=3d5
+   • Ni²⁺: Element=Ni, Config=3d8
+   • Co²⁺: Element=Co, Config=3d7
+
+💡 The configuration format follows Cowan's RCN program:
+   • Core hole configs: [core_hole],[valence] 
+   • Examples: "2p5,3d5" means 2p⁵3d⁵ (one 2p hole)
+   • Ground state: just valence config like "3d5"
+
+📖 Based on R.D. Cowan's "Theory of Atomic Structure and Spectra"
+        """
+        
+        msg = QMessageBox()
+        msg.setWindowTitle("Cowan Configuration Examples")
+        msg.setText("Quick reference for common configurations:")
+        msg.setDetailedText(examples_text)
+        msg.setIcon(QMessageBox.Icon.Information)
+        msg.exec()
+    
+    def browse_atomic_params_path(self):
+        """Browse for atomic-parameters directory"""
+        dir_path = QFileDialog.getExistingDirectory(
+            self, 
+            "Select atomic-parameters Directory",
+            self.atomic_params_path.text() if self.atomic_params_path.text() else os.path.expanduser("~")
+        )
+        if dir_path:
+            # Verify this is the atomic-parameters directory by checking for parameters.py
+            params_file = os.path.join(dir_path, "parameters.py")
+            if os.path.exists(params_file):
+                self.atomic_params_path.setText(dir_path)
+                # Also check for cowan directory
+                cowan_dir = os.path.join(dir_path, "cowan")
+                if os.path.exists(cowan_dir):
+                    self.cowan_results.setText("✅ Valid atomic-parameters directory found!\n"
+                                              f"Path: {dir_path}\n"
+                                              "Ready to calculate parameters.")
+                else:
+                    self.cowan_results.setText("⚠️ Directory found but missing 'cowan' subdirectory.\n"
+                                              "This may still work if Cowan binaries are installed elsewhere.")
+            else:
+                QMessageBox.warning(self, "Invalid Directory", 
+                    "Selected directory does not contain parameters.py.\n"
+                    "Please select the atomic-parameters directory.")
+    
+    def validate_cowan_inputs(self, element, configuration):
+        """Validate element and configuration inputs based on RCN format"""
+        # Validate element
+        element = element.strip()
+        if not element:
+            return False, "Element cannot be empty"
+        
+        if not element[0].isupper():
+            return False, "Element must start with uppercase letter (e.g., Fe, not fe)"
+            
+        if len(element) > 2 or not element.isalpha():
+            return False, "Element must be 1-2 letters (e.g., Fe, Ni, Co)"
+        
+        # List of valid elements (transition metals mainly)
+        valid_elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
+                         'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca',
+                         'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
+                         'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y', 'Zr',
+                         'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn']
+        
+        if element not in valid_elements:
+            return False, f"'{element}' may not be supported. Common elements: Fe, Ni, Co, Mn, Cr"
+        
+        # Validate configuration
+        configuration = configuration.strip()
+        if not configuration:
+            return False, "Configuration cannot be empty"
+        
+        # Check basic format - should be like "3d5", "1s1,3d5", "2p5,3d8", etc.
+        import re
+        
+        # Allow patterns like: 3d5, 2p5,3d8, 1s1,3d5, etc.
+        pattern = r'^(\d+[spdf]\d+,)*\d+[spdf]\d+$'
+        if not re.match(pattern, configuration):
+            return False, ("Configuration format should be like:\n"
+                          "• Ground state: '3d5', '3d8'\n" 
+                          "• Core hole: '2p5,3d5', '1s1,3d8'\n"
+                          "• Use numbers+letters: 1s, 2p, 3d, 4f")
+        
+        # Additional checks for common mistakes
+        if ',' in configuration:
+            parts = configuration.split(',')
+            if len(parts) > 2:
+                return False, "Too many comma-separated parts. Use format like '2p5,3d5'"
+            
+            # Check if core part comes before valence part
+            core_part = parts[0]
+            valence_part = parts[1]
+            
+            # Extract principal quantum numbers
+            core_n = int(re.search(r'^(\d+)', core_part).group(1))
+            valence_n = int(re.search(r'^(\d+)', valence_part).group(1))
+            
+            if core_n >= valence_n and not (core_n == 1 and valence_n == 3):  # Allow 1s,3d
+                return False, f"Core level (n={core_n}) should typically be inner than valence (n={valence_n})"
+        
+        return True, "Valid"
+    
+    def calculate_cowan_parameters(self):
+        """Calculate Cowan atomic parameters using the atomic-parameters tool"""
+        element = self.cowan_element.text().strip()
+        configuration = self.cowan_configuration.text().strip()
+        params_path = self.atomic_params_path.text().strip()
+        
+        # Validate inputs with improved validation
+        is_valid, msg = self.validate_cowan_inputs(element, configuration)
+        if not is_valid:
+            QMessageBox.warning(self, "Input Validation Error", msg)
+            return
+            
+        if not params_path or not os.path.exists(params_path):
+            QMessageBox.warning(self, "Path Error", 
+                "Please select a valid atomic-parameters directory.\n"
+                "You can download it from: https://github.com/mretegan/atomic-parameters.git")
+            return
+            
+        # Check if parameters.py exists
+        params_script = os.path.join(params_path, "parameters.py")
+        if not os.path.exists(params_script):
+            QMessageBox.warning(self, "Script Error", 
+                f"parameters.py not found in:\n{params_path}\n\n"
+                "Please select the correct atomic-parameters directory.\n"
+                "Download from: https://github.com/mretegan/atomic-parameters.git")
             return
         
-        # Set the file path in the EDAC tab
-        self.edac_cluster_path.setText(self.created_clus_file)
+        # Disable button and show progress
+        self.calculate_cowan_btn.setEnabled(False)
+        self.populate_params_btn.setEnabled(False)
+        self.cowan_results.setText(f"🔬 Calculating atomic parameters using Cowan's RCN/RCN2 programs...\n\n"
+                                  f"Element: {element}\n"
+                                  f"Configuration: {configuration}\n\n"
+                                  "⏳ Running calculation (may take 5-30 seconds)...")
         
-        # Switch to the EDAC tab
-        self.tabs.setCurrentIndex(3)  # Index 3 is the EDAC tab
+        # Start calculation in separate thread
+        self.cowan_thread = CowanThread(element, configuration, params_path)
+        self.cowan_thread.finished.connect(self.on_cowan_calculation_finished)
+        self.cowan_thread.start()
+    
+    def on_cowan_calculation_finished(self, success, output, parameters):
+        """Handle completion of Cowan calculation"""
+        self.calculate_cowan_btn.setEnabled(True)
         
-        self.cluster_console.append(f"Set {self.created_clus_file} for use in EDAC tab")
+        if success and parameters:
+            # Store calculated parameters
+            self.calculated_parameters = parameters
+            
+            # Display results
+            results_text = "=== Cowan Atomic Parameters Calculation Complete ===\n"
+            results_text += f"Element: {self.cowan_element.text()}\n"
+            results_text += f"Configuration: {self.cowan_configuration.text()}\n\n"
+            results_text += "Calculated Parameters:\n"
+            
+            for param_name, param_value in parameters.items():
+                results_text += f"  {param_name} = {param_value:.4f} eV\n"
+            
+            results_text += "\nClick 'Populate Fields' to automatically fill the Slater-Condon parameters below."
+            
+            self.cowan_results.setText(results_text)
+            self.populate_params_btn.setEnabled(True)
+            
+            QMessageBox.information(self, "Calculation Complete", 
+                f"Successfully calculated {len(parameters)} atomic parameters!\n"
+                "Click 'Populate Fields' to automatically fill the input parameters.")
+        else:
+            # Show error
+            error_text = "=== Cowan Calculation Failed ===\n"
+            error_text += f"Error output:\n{output}\n\n"
+            error_text += "Please check:\n"
+            error_text += "1. Element symbol is valid (e.g., Fe, Ni, Co)\n"
+            error_text += "2. Configuration format is correct (e.g., 1s1,3d5 or 3d5)\n"
+            error_text += "3. atomic-parameters directory path is correct\n"
+            error_text += "4. All dependencies are installed (pip install -r requirements.txt)"
+            
+            self.cowan_results.setText(error_text)
+            
+            QMessageBox.critical(self, "Calculation Failed", 
+                "Cowan calculation failed. Check the results panel for details.")
+    
+    def populate_slater_condon_parameters(self):
+        """Populate GUI fields with calculated Cowan parameters"""
+        if not self.calculated_parameters:
+            QMessageBox.warning(self, "No Parameters", 
+                "No calculated parameters available. Please run calculation first.")
+            return
+        
+        # Parameter mapping: Cowan output -> GUI fields
+        # This maps the parameter names from Cowan output to the GUI field objects
+        parameter_mappings = []
+        
+        try:
+            populated_count = 0
+            not_found = []
+            
+            # Ground State Slater-Condon Parameters
+            for param_name, param_value in self.calculated_parameters.items():
+                field_updated = False
+                
+                # F_k(3d,3d) parameters
+                if "F2(3d,3d)" in param_name or "F2(d,d)" in param_name:
+                    # Update F3d3d parameter in ground state
+                    current_values = self.gs_slater_f3d3d.text().split()
+                    if len(current_values) >= 3:
+                        current_values[2] = f"{param_value:.4f}"
+                        self.gs_slater_f3d3d.setText(" ".join(current_values))
+                        field_updated = True
+                
+                elif "F4(3d,3d)" in param_name or "F4(d,d)" in param_name:
+                    # Update F3d3d parameter in ground state
+                    current_values = self.gs_slater_f3d3d.text().split()
+                    if len(current_values) >= 5:
+                        current_values[4] = f"{param_value:.4f}"
+                        self.gs_slater_f3d3d.setText(" ".join(current_values))
+                        field_updated = True
+                
+                # F_k(2p,3d) parameters  
+                elif "F2(2p,3d)" in param_name or ("F2(" in param_name and "p," in param_name and "d)" in param_name):
+                    current_values = self.gs_slater_f2p3d.text().split()
+                    if len(current_values) >= 3:
+                        current_values[2] = f"{param_value:.4f}"
+                        self.gs_slater_f2p3d.setText(" ".join(current_values))
+                        field_updated = True
+                
+                # G_k(2p,3d) parameters
+                elif "G1(2p,3d)" in param_name or ("G1(" in param_name and "p," in param_name and "d)" in param_name):
+                    current_values = self.gs_slater_g2p3d.text().split()
+                    if len(current_values) >= 2:
+                        current_values[1] = f"{param_value:.4f}"
+                        self.gs_slater_g2p3d.setText(" ".join(current_values))
+                        field_updated = True
+                
+                elif "G3(2p,3d)" in param_name or ("G3(" in param_name and "p," in param_name and "d)" in param_name):
+                    current_values = self.gs_slater_g2p3d.text().split()
+                    if len(current_values) >= 4:
+                        current_values[3] = f"{param_value:.4f}"
+                        self.gs_slater_g2p3d.setText(" ".join(current_values))
+                        field_updated = True
+                
+                # Spin-orbit coupling parameters
+                elif "ζ(3d)" in param_name or ("ζ(" in param_name and "d)" in param_name):
+                    current_values = self.soc_params.text().split()
+                    if len(current_values) >= 2:
+                        current_values[1] = f"{param_value:.4f}"
+                        self.soc_params.setText(" ".join(current_values))
+                        field_updated = True
+                
+                if field_updated:
+                    populated_count += 1
+                else:
+                    not_found.append(param_name)
+            
+            # Also populate final state and intermediate state with same values
+            if populated_count > 0:
+                # Copy ground state values to final state
+                self.fs_slater_f2p3d.setText(self.gs_slater_f2p3d.text())
+                self.fs_slater_g2p3d.setText(self.gs_slater_g2p3d.text())
+                self.fs_slater_f2p3d_2.setText(self.gs_slater_f2p3d_2.text())
+                self.fs_slater_f2p3d_3.setText(self.gs_slater_f2p3d_3.text())
+                self.fs_slater_g2p3d_2.setText(self.gs_slater_g2p3d_2.text())
+                self.fs_slater_f3d3d.setText(self.gs_slater_f3d3d.text())
+                
+                # Copy to intermediate state (with slight modification for some parameters)
+                self.is_slater_f2p3d.setText(self.gs_slater_f2p3d.text())
+                self.is_slater_g2p3d.setText(self.gs_slater_g2p3d.text())
+                self.is_slater_f2p3d_2.setText(self.gs_slater_f2p3d_2.text())
+                self.is_slater_f2p3d_3.setText(self.gs_slater_f2p3d_3.text())
+                self.is_slater_g2p3d_2.setText(self.gs_slater_g2p3d_2.text())
+                # Intermediate state F3d3d can be slightly different - use existing value or copy
+                if self.is_slater_f3d3d.text().strip() == "0 0 8.9240 0 5.5528":
+                    # Keep the existing intermediate state values
+                    pass
+                else:
+                    self.is_slater_f3d3d.setText(self.gs_slater_f3d3d.text())
+            
+            # Show results
+            if populated_count > 0:
+                msg = f"Successfully populated {populated_count} parameter(s) in the Slater-Condon fields!\n\n"
+                msg += "Updated fields include:\n"
+                msg += "- Ground State, Final State, and Intermediate State Slater-Condon parameters\n"
+                msg += "- Spin-orbit coupling parameters\n\n"
+                
+                if not_found:
+                    msg += f"Note: {len(not_found)} parameter(s) could not be automatically mapped:\n"
+                    for param in not_found[:5]:  # Show first 5
+                        msg += f"  • {param}\n"
+                    if len(not_found) > 5:
+                        msg += f"  ... and {len(not_found) - 5} more\n"
+                    msg += "\nYou may need to manually adjust these values if needed."
+                
+                QMessageBox.information(self, "Parameters Populated", msg)
+                
+                # Update preview
+                self.preview_input()
+            else:
+                QMessageBox.warning(self, "No Matches", 
+                    "Could not automatically map any calculated parameters to GUI fields.\n"
+                    "The parameter names from Cowan calculation may not match expected formats.\n"
+                    "Please check the calculation results and manually enter values if needed.")
+        
+        except Exception as e:
+            QMessageBox.critical(self, "Population Error", 
+                f"Error while populating parameters:\n{str(e)}\n\n"
+                "Please check the calculation results and manually enter values.")
+    
+    # === END: Cowan Methods ===
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

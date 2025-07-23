@@ -382,6 +382,275 @@ def process_finished(self, exit_code, exit_status):
     # ... existing completion code ...
 ```
 
+## Cowan Atomic Parameters Integration
+
+### Overview
+
+The Cowan integration allows automatic calculation of Slater-Condon parameters using Robert D. Cowan's atomic structure codes. This eliminates the need for manual parameter lookup and ensures accurate, internally consistent parameter sets.
+
+### Architecture
+
+The integration consists of several key components:
+
+#### 1. UI Components (in `setup_input_tab()`)
+
+```python
+# Main Cowan section
+self.cowan_element = QLineEdit("Fe")              # Element input
+self.cowan_configuration = QLineEdit("1s1,3d5")  # Configuration input  
+self.atomic_params_path = QLineEdit()             # Path to atomic-parameters
+self.calculate_cowan_btn = QPushButton()          # Calculate button
+self.populate_params_btn = QPushButton()          # Populate button
+self.cowan_results = QTextEdit()                  # Results display
+```
+
+#### 2. Background Calculation Thread
+
+```python
+class CowanThread(QThread):
+    finished = pyqtSignal(bool, str, dict)
+    
+    def __init__(self, element, configuration, atomic_params_path):
+        # Initialize thread with calculation parameters
+        
+    def run(self):
+        # Execute Cowan calculation in background
+        # Parse output and extract parameters
+        # Emit results via finished signal
+```
+
+#### 3. Core Methods
+
+```python
+def calculate_cowan_parameters(self):
+    """Main calculation orchestrator"""
+    # Validate inputs
+    # Create and start CowanThread
+    # Handle UI state during calculation
+
+def on_cowan_calculation_finished(self, success, output, parameters):
+    """Handle calculation completion"""
+    # Process results
+    # Update UI with calculated parameters
+    # Enable populate button
+
+def populate_slater_condon_parameters(self):
+    """Map calculated parameters to GUI fields"""
+    # Parse Cowan output parameters
+    # Map to specific GUI fields
+    # Update Ground/Final/Intermediate state parameters
+```
+
+### Parameter Mapping
+
+The integration maps Cowan's calculated parameters to specific GUI fields:
+
+| Cowan Parameter | GUI Field Location | Description |
+|----------------|-------------------|-------------|
+| `F2(3d,3d)` | `gs_slater_f3d3d[2]` | d-d Coulomb integral |
+| `F4(3d,3d)` | `gs_slater_f3d3d[4]` | d-d Coulomb integral |
+| `F2(2p,3d)` | `gs_slater_f2p3d[2]` | Core-valence Coulomb |
+| `G1(2p,3d)` | `gs_slater_g2p3d[1]` | Core-valence exchange |
+| `G3(2p,3d)` | `gs_slater_g2p3d[3]` | Core-valence exchange |
+| `ζ(3d)` | `soc_params[1]` | Spin-orbit coupling |
+
+### Adding Support for New Elements
+
+To extend support for new elements or orbitals:
+
+#### 1. Update Validation
+
+```python
+def validate_cowan_inputs(self, element, configuration):
+    # Add new elements to valid_elements list
+    valid_elements = ['H', 'He', ..., 'YourNewElement']
+    
+    # Add validation for new orbital types
+    pattern = r'^(\d+[spdfg]\d+,)*\d+[spdfg]\d+$'  # Added 'g' orbitals
+```
+
+#### 2. Extend Parameter Mapping
+
+```python
+def populate_slater_condon_parameters(self):
+    # Add new parameter mappings
+    elif "F2(4f,4f)" in param_name:
+        # Handle 4f-4f interactions for lanthanides
+        # Map to appropriate GUI fields
+```
+
+#### 3. Add New Examples
+
+```python
+def show_cowan_examples(self):
+    examples_text = """
+    📋 LANTHANIDE 4f SYSTEMS:
+       • Ce³⁺ L₃: Element=Ce, Config=2p5,4f1
+       • Eu³⁺ L₃: Element=Eu, Config=2p5,4f6
+    """
+```
+
+### Error Handling and Debugging
+
+#### Common Issues and Solutions
+
+1. **Calculation Timeout**
+```python
+# Add timeout handling in CowanThread
+def run(self):
+    try:
+        result = subprocess.run(cmd, shell=True, capture_output=True, 
+                              text=True, check=True, timeout=120)  # 2 min timeout
+    except subprocess.TimeoutExpired:
+        self.finished.emit(False, "Calculation timed out", {})
+```
+
+2. **Parameter Parsing Failures**
+```python
+# Add robust parsing with fallbacks
+def parse_cowan_output(self, output):
+    parameters = {}
+    try:
+        # Primary parsing method
+        for line in output.split('\n'):
+            if 'INFO:' in line and '=' in line:
+                # Parse line
+    except Exception as e:
+        # Fallback parsing or error handling
+        logging.error(f"Parsing failed: {e}")
+        return {}
+```
+
+3. **Path Resolution Issues**
+```python
+# Improve path detection
+def find_atomic_params_path(self):
+    search_paths = [
+        os.environ.get('ATOMIC_PARAMS_PATH'),  # Environment variable
+        os.path.expanduser("~/atomic-parameters"),
+        "/opt/atomic-parameters",  # System-wide installation
+        # Add more fallback paths
+    ]
+```
+
+### Performance Optimization
+
+#### 1. Caching Results
+
+```python
+# Add result caching to avoid recalculation
+def calculate_cowan_parameters(self):
+    cache_key = f"{element}_{configuration}"
+    if cache_key in self.parameter_cache:
+        # Use cached results
+        self.use_cached_parameters(cache_key)
+        return
+    
+    # Proceed with calculation
+```
+
+#### 2. Background Processing
+
+```python
+# Ensure UI remains responsive during calculation
+class CowanThread(QThread):
+    progress = pyqtSignal(str)  # Progress updates
+    
+    def run(self):
+        self.progress.emit("Starting RCN calculation...")
+        # ... RCN step ...
+        self.progress.emit("Running RCN2...")
+        # ... RCN2 step ...
+```
+
+### Integration with Other Features
+
+#### 1. Parameter Export/Import
+
+```python
+def export_cowan_parameters(self):
+    """Export calculated Cowan parameters"""
+    if not self.calculated_parameters:
+        return
+    
+    data = {
+        'element': self.cowan_element.text(),
+        'configuration': self.cowan_configuration.text(),
+        'parameters': self.calculated_parameters,
+        'timestamp': datetime.now().isoformat()
+    }
+    
+    # Save to file
+```
+
+#### 2. Batch Calculations
+
+```python
+def batch_calculate_parameters(self, element_config_pairs):
+    """Calculate parameters for multiple systems"""
+    results = {}
+    for element, config in element_config_pairs:
+        # Calculate parameters
+        # Store results
+    return results
+```
+
+### Testing the Integration
+
+#### Unit Tests
+
+```python
+def test_cowan_validation(self):
+    """Test input validation"""
+    gui = MultipletGUI()
+    
+    # Test valid inputs
+    valid, msg = gui.validate_cowan_inputs('Fe', '3d5')
+    assert valid == True
+    
+    # Test invalid inputs
+    valid, msg = gui.validate_cowan_inputs('XYZ', 'invalid')
+    assert valid == False
+
+def test_parameter_mapping(self):
+    """Test parameter mapping to GUI fields"""
+    gui = MultipletGUI()
+    test_params = {'F2(3d,3d)': 13.7105, 'ζ(3d)': 0.0837}
+    
+    # Mock calculated parameters
+    gui.calculated_parameters = test_params
+    gui.populate_slater_condon_parameters()
+    
+    # Verify mapping
+    f3d3d_values = gui.gs_slater_f3d3d.text().split()
+    assert float(f3d3d_values[2]) == 13.7105
+```
+
+#### Integration Tests
+
+```python
+def test_full_workflow(self):
+    """Test complete Cowan workflow"""
+    # Create GUI
+    # Set inputs
+    # Run calculation
+    # Verify results
+    # Test populate function
+```
+
+### Contributing to Cowan Integration
+
+When adding new features to the Cowan integration:
+
+1. **Follow the existing architecture** - Use the thread-based calculation pattern
+2. **Add comprehensive validation** - Validate all inputs before calculation
+3. **Include error handling** - Handle all possible failure modes gracefully
+4. **Add examples** - Include relevant examples in the examples system
+5. **Update documentation** - Update this guide and user documentation
+6. **Add tests** - Include both unit and integration tests
+
+The Cowan integration is designed to be extensible and maintainable. Follow these patterns when adding new functionality to ensure consistency with the existing codebase.
+
 ## Common Workflows
 
 ### 1. Systematic Parameter Studies
