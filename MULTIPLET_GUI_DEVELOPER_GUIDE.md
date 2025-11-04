@@ -1156,6 +1156,5 @@ When using this software in publications, please cite:
 
 ---
 
-**Remember**: This tool combines sophisticated physics calculations with an intuitive interface. Understanding both the theoretical background and the practical implementation will help you use it effectively and contribute improvements that benefit the entire research community.
 
-**Happy coding and calculating!** 🔬⚛️ 
+
