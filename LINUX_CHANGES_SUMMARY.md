@@ -2,9 +2,9 @@
 
 This document summarizes all the changes made to ensure full Linux compatibility for Orbitron-Multiplet-Edac.
 
-## 🚀 Major Issues Resolved
+##  Major Issues Resolved
 
-### 1. GLIBC Compatibility Issues ✅ FIXED
+### 1. GLIBC Compatibility Issues  FIXED
 **Problem:** Aggressive compiler optimization (`-O2`) was causing random crashes and undefined behavior on Linux systems due to GLIBC compatibility issues.
 
 **Solution:** Implemented safer compiler flags:
@@ -17,7 +17,7 @@ This document summarizes all the changes made to ensure full Linux compatibility
 - Updated compilation instructions in all documentation
 - Modified GUI auto-compilation routines
 
-### 2. Segmentation Fault in EDAC Calculations ✅ FIXED
+### 2. Segmentation Fault in EDAC Calculations  FIXED
 **Problem:** EDAC calculations were crashing with "Segmentation fault (core dumped)" due to invalid emitter atom indices in input files.
 
 **Root Cause:** The original `edac.in` files contained emitter indices (51, 296, 430) that exceeded the number of atoms in the cluster files (50 atoms, indices 1-50).
@@ -31,7 +31,7 @@ This document summarizes all the changes made to ensure full Linux compatibility
 - `Edac 2/edac.in` - Fixed invalid emitter indices
 - `Edac 2/edac_fixed.in` - Created corrected version for reference
 
-### 3. Custom Icon Support ✅ IMPLEMENTED
+### 3. Custom Icon Support  IMPLEMENTED
 **Problem:** GUI applications were using default Python icons instead of custom application icons.
 
 **Solution:** Added custom icon support to both GUI applications:
@@ -43,7 +43,7 @@ This document summarizes all the changes made to ensure full Linux compatibility
 - `Multiplet2/RPES/multiplet_gui.py` - Added icon loading
 - `Edac 2/edac_gui.py` - Added icon loading
 
-### 4. Cowan Atomic Parameters Integration ✅ NEW FEATURE
+### 4. Cowan Atomic Parameters Integration  NEW FEATURE
 **Enhancement:** Integrated Cowan's atomic structure codes for automated Slater-Condon parameter calculation.
 
 **Problem Solved:** Manual lookup and entry of Slater-Condon parameters (F₂, F₄, G₁, G₃, ζ) was time-consuming, error-prone, and required extensive literature knowledge.
@@ -77,15 +77,15 @@ This document summarizes all the changes made to ensure full Linux compatibility
 5. Click "Calculate Parameters" → "Populate Fields"
 
 **Benefits:**
-- ⚡ **Speed**: Eliminates manual parameter lookup time
-- 🎯 **Accuracy**: Uses rigorous Cowan atomic structure calculations  
-- 🔄 **Consistency**: Ensures internally consistent parameter sets
-- 📚 **Knowledge**: No need for extensive Slater-Condon parameter literature
-- 🔬 **Research**: Enables focus on physics rather than parameter hunting
+-  **Speed**: Eliminates manual parameter lookup time
+-  **Accuracy**: Uses rigorous Cowan atomic structure calculations  
+-  **Consistency**: Ensures internally consistent parameter sets
+-  **Knowledge**: No need for extensive Slater-Condon parameter literature
+-  **Research**: Enables focus on physics rather than parameter hunting
 
-## 📚 Documentation Improvements
+##  Documentation Improvements
 
-### 1. Comprehensive Linux Setup Guide ✅ NEW
+### 1. Comprehensive Linux Setup Guide  NEW
 **Created:** `LINUX_COMPLETE_SETUP_GUIDE.md`
 - Complete step-by-step installation instructions
 - Platform-specific dependency installation (Ubuntu/Debian, RedHat/Fedora)
@@ -96,7 +96,7 @@ This document summarizes all the changes made to ensure full Linux compatibility
 - Performance optimization tips
 - System information collection for bug reports
 
-### 2. Updated Linux Branch README ✅ ENHANCED
+### 2. Updated Linux Branch README  ENHANCED
 **Enhanced:** `LINUX_BRANCH_README.md`
 - Added GLIBC compatibility section
 - Added segmentation fault fixes section
@@ -105,7 +105,7 @@ This document summarizes all the changes made to ensure full Linux compatibility
 - Added testing procedures
 - Added changelog section
 
-### 3. Updated Main README ✅ COMPREHENSIVE REWRITE
+### 3. Updated Main README  COMPREHENSIVE REWRITE
 **Enhanced:** `README.md`
 - Complete rewrite with professional documentation
 - Linux-first approach (primary platform)
@@ -117,7 +117,7 @@ This document summarizes all the changes made to ensure full Linux compatibility
 - Citation format
 - Support information
 
-### 4. Installation Test Script ✅ NEW
+### 4. Installation Test Script  NEW
 **Created:** `test_linux_installation.sh`
 - Automated installation verification
 - Checks all dependencies
@@ -163,7 +163,7 @@ g++ -g -O0 -fstack-protector-all -Wall -Wextra edac.cpp -o edac.exe
 - Shell scripts: `chmod +x`
 - Clear instructions for permission issues
 
-## 🐛 Bug Fixes
+##  Bug Fixes
 
 ### 1. Input File Validation
 **Fixed invalid emitter indices:**
@@ -187,7 +187,7 @@ emitters 4 1 25 2 25 3 25 4 25
 - Graceful fallback to default icons
 - Clear error messages for debugging
 
-## 📋 Testing and Validation
+##  Testing and Validation
 
 ### 1. Automated Testing
 **Created comprehensive test suite:**
@@ -212,7 +212,7 @@ emitters 4 1 25 2 25 3 25 4 25
 - Memory error detection
 - Performance profiling
 
-## 📁 Files Created/Modified
+##  Files Created/Modified
 
 ### New Files Created:
 - `LINUX_COMPLETE_SETUP_GUIDE.md` - Comprehensive setup guide
@@ -229,7 +229,7 @@ emitters 4 1 25 2 25 3 25 4 25
 ### Enhanced Files:
 - All existing Linux documentation updated with new solutions
 
-## 🚀 Impact and Benefits
+##  Impact and Benefits
 
 ### 1. Reliability Improvements
 - **Eliminated segmentation faults** in EDAC calculations
@@ -253,7 +253,7 @@ emitters 4 1 25 2 25 3 25 4 25
 - **Cross-platform consistency** maintained
 - **Future-proof architecture** for additional platforms
 
-## ✅ Verification
+##  Verification
 
 All changes have been tested and verified to work on:
 - Ubuntu 20.04+ systems
@@ -263,7 +263,7 @@ All changes have been tested and verified to work on:
 
 The installation test script provides automated verification that all components are working correctly.
 
-## 🔄 Next Steps
+##  Next Steps
 
 1. **Commit all changes** to the repository
 2. **Tag the release** as Linux-compatible version
