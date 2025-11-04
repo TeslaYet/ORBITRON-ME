@@ -2,7 +2,7 @@
 
 A comprehensive suite for electron diffraction angular correlation (EDAC) calculations and multiplet theory simulations with graphical user interfaces.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### For Linux Users (Recommended)
 
@@ -21,7 +21,7 @@ This includes solutions for all known Linux issues:
 
 Follow the instructions in [compile_macos.sh](compile_macos.sh) for macOS compilation.
 
-## 📖 Documentation
+## Documentation
 
 - **[LINUX_COMPLETE_SETUP_GUIDE.md](LINUX_COMPLETE_SETUP_GUIDE.md)** - Comprehensive Linux setup (recommended)
 - **[LINUX_BRANCH_README.md](LINUX_BRANCH_README.md)** - Linux compatibility overview
@@ -29,7 +29,7 @@ Follow the instructions in [compile_macos.sh](compile_macos.sh) for macOS compil
 - **[compile_linux.sh](compile_linux.sh)** - Linux compilation script
 - **[compile_macos.sh](compile_macos.sh)** - macOS compilation script
 
-## 🔧 Features
+## Features
 
 - **Multiplet Theory Calculations**: Full multiplet calculations with crystal field effects
 - **Cowan Atomic Parameters**: Automated calculation of Slater-Condon parameters using Cowan's atomic structure codes
@@ -39,7 +39,7 @@ Follow the instructions in [compile_macos.sh](compile_macos.sh) for macOS compil
 - **Graphical User Interface**: Easy-to-use PyQt6-based GUIs
 - **Cross-Platform**: Full Linux support with macOS compatibility
 
-## 🖥️ System Requirements
+## System Requirements
 
 ### Linux (Primary Platform)
 - Ubuntu 20.04+ or equivalent Linux distribution
@@ -52,7 +52,7 @@ Follow the instructions in [compile_macos.sh](compile_macos.sh) for macOS compil
 - Xcode command line tools
 - Python 3.8+
 
-## 🛠️ Installation
+## Installation
 
 ### Linux Installation (Recommended)
 
@@ -110,7 +110,7 @@ cd "../../Edac 2" && python3 edac_gui.py        # EDAC GUI
 
 For detailed instructions and troubleshooting, see [LINUX_COMPLETE_SETUP_GUIDE.md](LINUX_COMPLETE_SETUP_GUIDE.md).
 
-## 📱 Applications
+## Applications
 
 ### Multiplet GUI (`Multiplet2/RPES/multiplet_gui.py`)
 - **Cowan Atomic Parameters**: Automatically calculate Slater-Condon parameters using Cowan's atomic structure codes
@@ -126,7 +126,7 @@ For detailed instructions and troubleshooting, see [LINUX_COMPLETE_SETUP_GUIDE.m
 - Generate diffraction pattern visualizations
 - Support for multiple emitter configurations
 
-## 🧮 Using Cowan Atomic Parameters
+## Using Cowan Atomic Parameters
 
 The Multiplet GUI now includes integrated support for automatically calculating atomic parameters using Cowan's programs:
 
@@ -151,7 +151,7 @@ The Multiplet GUI now includes integrated support for automatically calculating 
 
 This integration eliminates the need to manually look up and enter these parameters, ensuring accuracy and saving time.
 
-## 🔧 Key Components
+##  Key Components
 
 ### Computational Engines
 - **multiplet**: Core multiplet calculation engine
@@ -167,19 +167,19 @@ This integration eliminates the need to manually look up and enter these paramet
 ### Data Conversion
 - **convert_rpesalms.py**: Convert multiplet output to EDAC format
 
-## 🐛 Known Issues and Solutions
+## Known Issues and Solutions
 
 ### Linux-Specific Issues (All Fixed)
-- ✅ **GLIBC Compatibility**: Fixed with safer compiler flags
-- ✅ **Segmentation Faults**: Fixed invalid emitter indices in input files
-- ✅ **Exec Format Error**: Resolved by compiling all binaries on Linux
-- ✅ **PyQt6 Issues**: Virtual environment setup resolves import problems
-- ✅ **File Permissions**: Proper chmod +x for all executables
+-  **GLIBC Compatibility**: Fixed with safer compiler flags
+-  **Segmentation Faults**: Fixed invalid emitter indices in input files
+-  **Exec Format Error**: Resolved by compiling all binaries on Linux
+-  **PyQt6 Issues**: Virtual environment setup resolves import problems
+-  **File Permissions**: Proper chmod +x for all executables
 
 ### Troubleshooting
 For detailed troubleshooting instructions, see [LINUX_COMPLETE_SETUP_GUIDE.md](LINUX_COMPLETE_SETUP_GUIDE.md).
 
-## 📄 File Structure
+##  File Structure
 
 ```
 ORBITRON-ME/
@@ -203,7 +203,7 @@ ORBITRON-ME/
 └── README.md               # This file
 ```
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
@@ -211,7 +211,7 @@ ORBITRON-ME/
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 Citation
+##  Citation
 
 If you use this software in your research, please cite:
 
@@ -225,7 +225,7 @@ If you use this software in your research, please cite:
 }
 ```
 
-## 🏆 Credits
+##  Credits
 
 This software integrates several computational engines with modern GUI interfaces:
 
@@ -241,7 +241,7 @@ Please also cite the original theoretical work when using the computational engi
 - For EDAC calculations: Cite the relevant papers by F. Javier Garcia de Abajo
 - For Multiplet theory and associated tools: Cite the relevant papers by Professor Peter Krüger
 
-## 📜 License
+##  License
 
 This project uses a multi-component licensing approach:
 
@@ -253,17 +253,17 @@ See the [LICENSE](LICENSE) file for complete details and attribution requirement
 
 **For Academic Use**: Please cite both this integrated suite and the original computational engines in your research publications.
 
-## 🆘 Support
+##  Support
 
 - **Linux Issues**: See [LINUX_COMPLETE_SETUP_GUIDE.md](LINUX_COMPLETE_SETUP_GUIDE.md)
 - **Bug Reports**: Open an issue on GitHub
 - **Feature Requests**: Open an issue with the "enhancement" label
 
-## 🏗️ Development Status
+##  Development Status
 
-- ✅ **Linux Support**: Fully implemented and tested
-- ✅ **GUI Applications**: Complete with custom icons
-- ✅ **Documentation**: Comprehensive setup guides
-- ✅ **Testing**: Automated installation verification
-- 🔄 **macOS Support**: Maintained (original platform)
-- 🔄 **Windows Support**: Community contributions welcome
+-  **Linux Support**: Fully implemented and tested
+-  **GUI Applications**: Complete with custom icons
+-  **Documentation**: Comprehensive setup guides
+-  **Testing**: Automated installation verification
+-  **macOS Support**: Maintained (original platform)
+-  **Windows Support**: Community contributions welcome
