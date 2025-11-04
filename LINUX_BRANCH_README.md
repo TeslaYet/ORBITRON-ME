@@ -2,7 +2,7 @@
 
 This branch contains modifications specifically for Linux compatibility. The main branch is optimized for macOS, while this branch includes changes to ensure proper operation on Linux systems.
 
-## 🚀 Quick Start
+##  Quick Start
 
 **For complete setup instructions, see [LINUX_COMPLETE_SETUP_GUIDE.md](LINUX_COMPLETE_SETUP_GUIDE.md)**
 
@@ -26,7 +26,7 @@ This branch includes the following Linux-specific changes:
 
 7. **Custom Icon Support**: Both GUI applications now display the custom `icon.png` instead of the default Python icon.
 
-## ⚠️ Important: Binary Compatibility Issue ⚠️
+##  Important: Binary Compatibility Issue 
 
 The repository may contain pre-compiled binaries for macOS that **will not work on Linux**. If you try to run these directly, you'll get an "Exec format error" like:
 
@@ -36,7 +36,7 @@ The repository may contain pre-compiled binaries for macOS that **will not work 
 
 **This is expected and normal.** The solution is to compile all the executables yourself on your Linux system following the steps below. The binaries need to be built specifically for your Linux architecture.
 
-## 🛠️ Critical Fixes Included
+##  Critical Fixes Included
 
 ### GLIBC Compatibility Issues (NEW)
 
@@ -208,15 +208,15 @@ If you encounter Linux-specific issues, please report them on the GitHub issue t
 ## Change Log
 
 ### Recent Fixes (Latest)
-- ✅ **GLIBC Compatibility**: Fixed random crashes by using safer compiler flags
-- ✅ **Segmentation Faults**: Fixed invalid emitter indices in input files
-- ✅ **Custom Icon**: Added support for custom GUI icons
-- ✅ **Complete Documentation**: Created comprehensive setup guide
-- ✅ **Missing rpededac**: Added compilation instructions for rpededac
-- ✅ **GDB Debugging**: Added debugging instructions for troubleshooting
+-  **GLIBC Compatibility**: Fixed random crashes by using safer compiler flags
+-  **Segmentation Faults**: Fixed invalid emitter indices in input files
+-  **Custom Icon**: Added support for custom GUI icons
+-  **Complete Documentation**: Created comprehensive setup guide
+-  **Missing rpededac**: Added compilation instructions for rpededac
+-  **GDB Debugging**: Added debugging instructions for troubleshooting
 
 ### Previous Fixes
-- ✅ **Exec Format Error**: Fixed by ensuring all binaries are compiled on Linux
-- ✅ **PyQt6 Support**: Updated GUI for PyQt6 compatibility
-- ✅ **Path Handling**: Fixed cross-platform path issues
-- ✅ **Library Linking**: Fixed BLAS/LAPACK linking on Linux 
+-  **Exec Format Error**: Fixed by ensuring all binaries are compiled on Linux
+-  **PyQt6 Support**: Updated GUI for PyQt6 compatibility
+-  **Path Handling**: Fixed cross-platform path issues
+-  **Library Linking**: Fixed BLAS/LAPACK linking on Linux 
